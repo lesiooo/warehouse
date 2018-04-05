@@ -1,0 +1,7 @@
+# Created by .ignore support plugin (hsz.mobi)
+
+
+/warehouse_rest/warehouse/migrations/
+/warehouse_rest/.idea/
+/warehouse_react/.idea/
+/warehouse_rest/operations/migrations/
