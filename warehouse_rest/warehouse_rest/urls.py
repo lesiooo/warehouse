@@ -16,11 +16,13 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 from django.conf import settings
+from operations.views import UserView
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^warehouse/', include('warehouse.urls')),
     url(r'^operation/', include('operations.urls')),
+    url(r'^users/', UserView.as_view(), name='user'),
 ]
 
 

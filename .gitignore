@@ -6,3 +6,4 @@
 /warehouse_react/.idea/
 /warehouse_rest/operations/migrations/
 /warehouse_react/node_modules/
+/warehouse_rest/db.sqlite3

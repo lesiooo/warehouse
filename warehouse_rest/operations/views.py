@@ -1,10 +1,15 @@
+from django.http import HttpRequest
 from django.shortcuts import render
-from rest_framework import generics, permissions, viewsets
+from rest_framework import generics, permissions, mixins
 from rest_framework.response import Response
-from .serializers import OperationSerializer
-from .models import Operation
+from .serializers import OperationSerializer, CartSerializer, UserSerializer
+from .models import Operation, Cart
 from warehouse.models import SemiFinishedItem
 from django.utils.timezone import now
+from django.contrib.auth.models import User
+from django.contrib.auth.hashers import make_password
+from .permissions import IsOwnerOrReadOnly
+from rest_framework.request import Request
 
 
 class OperationDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -29,6 +34,7 @@ class OperationList(generics.ListCreateAPIView):
         return '{}/{}/{}'.format(operation, operation_count, now().year)
 
     def perform_create(self, serializer):
+        print('ok')
         serializer.save(worker=self.request.user)
         operation = serializer.validated_data['operation']
         operation_number = self.find_operation_number(operation)
@@ -50,3 +56,65 @@ class OperationList(generics.ListCreateAPIView):
             edit_item.save()
 
     permission_classes = [permissions.AllowAny]
+
+
+class CartDetail(generics.RetrieveUpdateAPIView):
+
+    lookup_field = 'worker__username'
+    queryset = Cart.objects.all()
+    serializer_class = CartSerializer
+
+    permission_classes = (
+        permissions.IsAuthenticated,
+        IsOwnerOrReadOnly
+    )
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = self.queryset.filter(worker=user)
+        return queryset
+
+    def patch(self, request, *args, **kwargs):
+        operation_list = OperationList()
+        products = request.data['products']
+        quantities = request.data['quantities']
+        operation = request.data['operation']
+        operation_number = operation_list.find_operation_number(operation=operation)
+
+        test = Operation(operation=operation, products=products, quantities=quantities, worker=request.user, operation_number=operation_number)
+        test.save()
+        test_actualization = operation_list.actualize_items_quantity(request.data['products'], request.data['quantities'], 'ER')
+        cart = Cart.objects.get(worker=request.user)
+        cart.quantities = []
+        cart.products = []
+        cart.save()
+
+class UserView(generics.ListCreateAPIView):
+
+    model = User
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [
+        # permissions.IsAuthenticated
+        permissions.AllowAny
+    ]
+
+    def perform_create(self, serializer):
+        password = make_password(self.request.data['password'])
+        serializer.save(password=password)
+        username = serializer.validated_data['username']
+        print(username)
+        user = User.objects.get(username=username)
+        user_cart = Cart.objects.create(worker=user)
+
+        return Response()
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = self.queryset.all()
+        return queryset
+
+
+
+
+

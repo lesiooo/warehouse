@@ -31,3 +31,15 @@ class Operation(models.Model):
 
     def get_api_url(self, request=None):
         return reverse('operation-detail', kwargs={'id': self.id}, request=request)
+
+
+class Cart(models.Model):
+    worker = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='cart_owner', on_delete=models.CASCADE)
+    products = ArrayField(models.CharField(max_length=50), default=[])
+    quantities = ArrayField(models.PositiveIntegerField(), default=[])
+
+    @property
+    def worker__username(self):
+        print(self.worker.username)
+        return self.worker.username
+
