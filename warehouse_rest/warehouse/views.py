@@ -13,8 +13,7 @@ class SemiFinishedItemList(generics.ListCreateAPIView):
     serializer_class = SemiFinishedItemSerializer
     queryset = SemiFinishedItem.objects.all()
     permission_classes = [
-        #permissions.IsAuthenticated
-        permissions.AllowAny
+        permissions.IsAuthenticatedOrReadOnly
     ]
 
 
@@ -26,8 +25,8 @@ class SemiFinishedItemDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = SemiFinishedItemSerializer
     queryset = SemiFinishedItem.objects.all()
     permission_classes = [
-        # permissions.IsAuthenticated
-        permissions.AllowAny
+        permissions.IsAuthenticatedOrReadOnly
+
     ]
 
 

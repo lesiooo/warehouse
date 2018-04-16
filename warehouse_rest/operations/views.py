@@ -31,7 +31,7 @@ class OperationList(generics.ListCreateAPIView):
     def find_operation_number(self, operation):
 
         operation_count =  Operation.objects.filter(operation=operation).filter(created__year=now().year).count()
-        return '{}/{}/{}'.format(operation, operation_count, now().year)
+        return '{}/{}/{}'.format(operation, operation_count+1, now().year)
 
     def perform_create(self, serializer):
         print('ok')
@@ -88,6 +88,7 @@ class CartDetail(generics.RetrieveUpdateAPIView):
         cart.quantities = []
         cart.products = []
         cart.save()
+        return Response(status=200)
 
 class UserView(generics.ListCreateAPIView):
 

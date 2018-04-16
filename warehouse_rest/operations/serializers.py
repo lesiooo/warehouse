@@ -64,5 +64,4 @@ class UserSerializer(serializers.ModelSerializer):
         }
 
     def get_cart(self, obj):
-        print(Cart.objects.filter(worker__id=obj.id).values('worker'))
         return Cart.objects.filter(worker__id=obj.id).values_list('products', 'quantities')
